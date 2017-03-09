@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>診断箇所一覧</title>
+<style>
+h1{font-size:160%;font-family:"メイリオ",Meiryo;}
+textarea{font-size:80%;font-family:"メイリオ",Meiryo;width:100%;height:35em;}
+</style>
+</head>
+<body>
+<script>
+function win_close(){
+	window.close();
+	return false;
+}
+function export_data(){
+	var src = document.getElementById("ta").value;
+	var d = window.open().document;
+	d.writeln('<!DOCTYPE html>');
+	d.writeln('<html lang="ja"><head><meta charset="utf-8">');
+	d.writeln('<title>Export</title>');
+	d.writeln('<style>h1{font-size:160%;font-family:"メイリオ",Meiryo;}');
+	d.writeln('pre{font-size:80%;font-family:"メイリオ",Meiryo;width:100%;height:20em;}');
+	d.writeln('</style></head>');
+	d.writeln('<body>');
+	d.writeln('<h1>Export</h1>');
+	d.writeln('</body>');
+	d.writeln('</html>');
+	var pr = d.createElement("pre");
+	pr.textContent = src;
+	var bd = d.getElementsByTagName("body").item(0);
+	bd.appendChild(pr);
+}
+</script>
+<h1>診断箇所一覧</h1>
+<button onclick="export_data()">Export</button>
+<button onclick="win_close()">Close</button><br>
+</body></html>

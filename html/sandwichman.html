@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Sandwichman</title>
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif;}
+h1 {font-size: 170%;}
+#desc,label {font-size: 90%;}
+em {font-size: 70%;font-style:normal;font-weight:bold;color:#C00000;}
+#all_text {width: 160px;}
+#results {font-size:80%; width: 100%; height: 5em;}
+</style>
+</head>
+<body onload="init()">
+<script type="text/javascript">
+function cook(){
+	var text = document.getElementById("content").value;
+	var elm = document.getElementById("blaket");
+	var startt = "";
+	var endt = "";
+	for(var i=0; i<elm.options.length; i++){
+		if(elm.options[i].selected==true){
+			var row = elm.options[i].text;
+			var arr = row.split(" と ");
+			if(arr!=null){
+				startt = arr[0].toString();
+				endt = arr[1].toString();
+			}
+		}
+	}
+	var complete = startt + text + endt;
+	document.getElementById("results").value=complete;
+}
+</script>
+<h1>Sandwichman</h1>
+<label>ブラケット</label>
+<select id="blaket"></select>
+<label>内容</label>
+<input type="text" id="content">
+<button onclick="cook()">Cook</button><br>
+<textarea id="results"></textarea>
+</body>
+</html>

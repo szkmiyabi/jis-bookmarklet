@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>CCA CE(V2)</title>	
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif; }
+label {font-size: 90%;}
+#my_search_text, #my_replace_text {width: 90px;}
+</style>
+</head>
+<body onload="create_snippet_select()">
+<script type="text/javascript">
+function create_snippet_select(){
+  var keylist = "代替テキストが十分でない|段落の体裁を取っている箇所でp要素が使用されていない";
+  var keyarr = keylist.split("|");
+  var target = document.getElementById("snippet");
+  for(var i=0; i<keyarr.length; i++){
+    var opt = document.createElement("option");
+    opt.setAttribute("id", i);
+    opt.textContent = keyarr[i].toString();
+    target.appendChild(opt);
+  }
+}
+function get_text(){
+  var target = get_radio_val();
+	return document.getElementById(target).value;
+}
+function set_text(str){
+  var target = get_radio_val();
+	document.getElementById(target).value = str;
+}
+function delete_text(){
+  var target = get_radio_val();
+	document.getElementById(target).value = "";
+}
+function clean(){
+	var src = get_text();
+	src=src.replace(/\n\n/g, "\n");
+	set_text(src);
+}
+function get_radio_val(){
+	var ret = "";
+  var arr = document.getElementsByName("cmd");
+  for(var i=0; i<arr.length; i++){
+  	if(arr[i].checked){
+  		ret = arr[i].value;
+  		break;
+  	}
+  }
+  return ret;
+}
+function get_caret(){
+  var target = get_radio_val();
+  var ta = document.getElementById(target);
+  var start = ta.selectionStart;
+  return start;
+}
+function text_insert(str){
+  var target = get_radio_val();
+  var ta = document.getElementById(target);
+  var taval = ta.value;
+  var caret = get_caret();
+  var first2caret = taval.substring(0, caret);
+  var caret2end = taval.substring(caret, taval.length);
+  var rdmstr = first2caret + str + caret2end;
+  ta.value = rdmstr;
+}
+function this_text_insert(src){
+  var target = get_radio_val();
+  var sc = document.getElementById(src);
+  var text = sc.value;
+  text_insert(text);
+}
+function br_insert(){
+  var target = get_radio_val();
+  text_insert("\n");
+}
+function do_replace() {
+  var target = get_radio_val();
+  var sh = document.getElementById("my_search_text").value;
+  var rp = document.getElementById("my_replace_text").value;
+  var src = document.getElementById(target).value;
+  var pt = new RegExp(sh, "mg");
+  src = src.replace(pt, rp);
+  document.getElementById(target).value = src;
+}
+</script>
+<h1>検査内容エディタ</h1>
+<label>【処理対象】</label><br>
+<label><input type="radio" name="cmd" id="cmd_comments" value="comments" checked="checked">判定コメント</label>
+<label><input type="radio" name="cmd" id="cmd_description" value="description">対象ソース</label>
+<label><input type="radio" name="cmd" id="cmd_srccode" value="srccode">修正ソース</label>
+<br>
+<label>【テキスト編集】</label><br>
+<button onclick="clean()">Clean</button>
+<button onclick="br_insert()">Br</button>
+<button onclick="delete_text()">Del</button>
+<br>
+<label>【コメント挿入】</label><br>
+<select id="snippet"></select>
+<button onclick="this_text_insert('snippet')">挿入</button><br>
+<label>【テキスト置換】</label><br>
+<label>検索文字列</label><input type="text" id="my_search_text"><label>置換文字列</label><input type="text" id="my_replace_text">
+<button onclick="do_replace()">実行</button>
+</body>
+</html>

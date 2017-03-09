@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>TABLE CL</title>
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif;}
+h1 {font-size: 170%; margin-top:0;}
+label {font-size: 90%; margin-right: 10px;}
+#comments,#comments2 {min-width: 320px;}
+#coln,#rown {width: 22px;}
+#ta_main {font-size:80%; width:100%; max-width:800px; height: 15em;}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+  function delete_this_text(target) {
+    document.getElementById(target).value = "";
+  }
+  function create() {
+    var coln = parseInt(document.getElementById("coln").value);
+    var rown = parseInt(document.getElementById("rown").value);
+    var titlechk = document.getElementById("titlechk").value;
+    var classnm = document.getElementById("classnm").value;
+    var html = "";
+    html += "<table";
+    if (classnm != "") {
+      html += ' class="' + classnm + '"';
+    }
+    html += ">\r\n";
+    if (titlechk == "yes") {
+      html += "  <tr>\r\n";
+      for (var i = 0; i < coln; i++) {
+        html += "    <th></th>\r\n";
+      }
+      html += "  </tr>\r\n";
+      rown -= 1;
+    }
+    for (var i = 0; i < (rown + 1); i++) {
+      html += "  <tr>\r\n";
+      for (var j = 0; j < coln; j++) {
+        html += "    <td></td>\r\n";
+      }
+      html += "  </tr>\r\n";
+    }
+    html += "</table>\r\n";
+    document.getElementById("ta_main").value = html;
+
+  }
+</script>
+<h1>Table Creator</h1>
+<label>行数：<input type="text" id="rown"></label>
+<label>列数：<input type="text" id="coln"></label>
+<label><input type="checkbox" id="titlechk" value="yes">タイトル行</label>
+<label>クラス名：<input type="text" id="classnm" size="8"></label>
+<button onclick="create()">Create</button>
+<button onclick="delete_this_text('ta_main')">Delete</button>
+<textarea id="ta_main"></textarea>
+</body>
+</html>

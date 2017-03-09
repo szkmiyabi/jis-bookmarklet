@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>MyEditor</title>
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif;}
+h1 {font-size: 170%;}
+ul {margin:0;padding:0 0 0 10px;}
+ul li {color:#4040FF; text-decoration: underline; font-size: 90%;}
+#editor {font-size:80%; width: 100%; height: 20em;}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+var strg = window.localStorage;
+function list_update() {
+    document.getElementById("files").innerHTML = "";
+    for (var i = 0; i < strg.length; i++) {
+        var key = strg.key(i);
+        var dat = strg.getItem(key);
+        var uls = document.getElementById("files");
+        var li = document.createElement("li");
+        li.setAttribute("id", "file-" + i);
+        uls.appendChild(li);
+        var lir = document.getElementById("file-" + i);
+        var at = document.createElement("a");
+        at.setAttribute("onclick", "myeditor_load('" + key + "')");
+        at.innerHTML = key;
+        lir.appendChild(at);
+    }
+}
+function myeditor_save() {
+    var filename = document.getElementById("filename").value;
+    var pat = new RegExp(/[a-zA-Z0-9_ \-]+/);
+    if (filename !== "") {
+        if (filename.match(pat)) {
+            var contents = document.getElementById("editor").value;
+            try{
+                strg.setItem(filename, contents);
+                alert("保存が完了しました！");
+            }catch(e){
+                alert("Error:" + e);
+            }finally{}
+            list_update();
+        } else {
+            alert("ファイル名は半角文字で、英字・数字・ハイフン(-)・アンダーバー(_)だけが使用できます!");
+        }
+    } else {
+        alert("ファイル名が入力されていません！");
+    }
+}
+function clear_text() {
+    document.getElementById("contents").value = "";
+}
+function myeditor_load(name) {
+    var contents = strg.getItem(name);
+    document.getElementById("editor").value = contents;
+    document.getElementById("filename").value = name;
+}
+function myeditor_delete() {
+    var filename = document.getElementById("filename").value;
+    if (filename !== "") {
+        var contents = document.getElementById("editor").value;
+        try {
+            strg.removeItem(filename);
+            document.getElementById("filename").value = "";
+            document.getElementById("editor").value = "";
+        } catch (e) {
+            alert("Error:" + e);
+        } finally { }
+        list_update();
+    } else {
+        alert("ファイル名が指定されていません！");
+    }
+}
+function myeditor_deletall() {
+    strg.clear();
+    document.getElementById("filename").value = "";
+    document.getElementById("editor").value = "";
+    list_update();
+}
+</script>
+<h1>MyEditor</h1>
+<dl>
+<dt>File Lists:<button onclick="list_update()">Load</button></dt>
+<dd><ul id="files"></ul></dd>
+</dl>
+<label for="filename">File Name:</label>
+<input type="text" id="filename">
+<button onclick="myeditor_save()">Save</button>
+<button onclick="clear_text()">Clear</button>
+<button onclick="myeditor_delete()">Delete</button>
+<button onclick="myeditor_deletall()">DelAll</button>
+<textarea id="editor"></textarea>
+</body>
+</html>

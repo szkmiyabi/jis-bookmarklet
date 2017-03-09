@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>W3C-CE</title>
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif;}
+h1 {font-size: 170%; margin-top:0;}
+label {font-size: 90%; margin-right: 10px;}
+#comments,#comments2 {min-width: 320px;}
+#ta_before,#ta_after,#ta_sub {font-size:80%; width:100%; max-width:800px; height: 15em;}
+#ta_after_searchword,#ta_after_replaceword,#ta_sub_searchword,#ta_sub_replaceword{width:89px;margin:5px 0;}
+</style>
+</head>
+<body onload="create_comments_select()">
+<script type="text/javascript">
+function create_comments_select(){
+	var sc = document.getElementById("comments");
+	var sp_text = "&は&amp;としてください|XHTML1.0ではタグは小文字でなければならない|タグが閉じられていません|開始タグがない|中身が空のタグがある|以下を削除する|idが重複しています"
+	var arr = sp_text.split("|");
+	if(arr!==null){
+		for(var i=0; i<arr.length; i++){
+			var opt = document.createElement("option");
+			opt.setAttribute("value", i);
+			opt.textContent = arr[i].toString();
+			sc.appendChild(opt);
+		}
+	}
+	var sc2 = document.getElementById("comments2");
+	sc2.innerHTML = sc.innerHTML;
+}
+function get_line_num(){
+	var src = document.getElementById("ta_before").value;
+	src = clean(src);
+	var pat = new RegExp(/, .+/g);
+	var arr = src.match(pat);
+	if(arr!==null){
+		src = src.replace(pat, "");
+		document.getElementById("ta_after").value = src;
+	}else{
+		alert("W3Cバリデータの結果が貼り付けられていません！");
+	}
+}
+function tagline_delete(target){
+	var src = document.getElementById(target).value;
+	src = clean(src);
+	var pat = new RegExp(/<.*/g);
+	var arr = src.match(pat);
+	if(arr!==null){
+		src = src.replace(pat, "");
+		document.getElementById(target).value = src;
+	}
+}
+function br2_delete(target){
+	var src = document.getElementById(target).value;
+	src = clean(src);
+	src = src.replace(/^\n+/mg, "");
+	document.getElementById(target).value=src;
+}
+function get_caret(target){
+	var ta = document.getElementById(target);
+	var start = ta.selectionStart;
+	return start;
+}
+function text_insert(target, str){
+	var ta = document.getElementById(target);
+	var taval = ta.value;
+	var caret = get_caret(target);
+	var first2caret = taval.substring(0, caret);
+	var caret2end = taval.substring(caret, taval.length);
+	var rdmstr = first2caret + str + caret2end;
+	ta.value = rdmstr;
+}
+function br_insert(target){
+	text_insert(target, "\n");
+}
+function this_text_insert(src, target){
+	var sc = document.getElementById(src);
+	var text = "";
+	for(var i=0; i<sc.options.length; i++){
+		var row = sc.options[i];
+		if(row.selected == true){
+			text = row.text;
+			break;
+		}
+	}
+	text_insert(target, text);
+}
+function copy_up(){
+	var src = document.getElementById("ta_sub").value;
+	document.getElementById("ta_after").value = src;
+}
+function copy_down(){
+	var src = document.getElementById("ta_after").value;
+	document.getElementById("ta_sub").value = src;
+}
+function delete_this_text(target){
+	document.getElementById(target).value="";
+}
+function delete_all_text(){
+	var tas = document.getElementsByTagName("textarea");
+	alert(tas);
+	for(var i=0; i<tas.length; i++){
+		var row = tas.item(i);
+		row.value = "";
+	}
+}
+function clean(str){
+  str=str.replace(/^ +/mg,"");
+  str=str.replace(/^\t+/mg,"");
+  return str;
+}
+function tag_reference(){
+	window.open("http://www.tohoho-web.com/html/");
+}
+function text_replace(search, replace, target){
+	var src = document.getElementById(target).value;
+	var srch_wd = document.getElementById(search).value;
+	var rplc_wd = document.getElementById(replace).value;
+	var cnt = 0;
+	if(srch_wd!==null){
+		var pat = new RegExp(srch_wd, "g");
+		var arr = src.match(pat);
+		if(arr!==null){
+			cnt = arr.length;
+			alert(cnt + "件ヒットしました！");
+			src = src.replace(pat, rplc_wd);
+			document.getElementById(target).value = src;
+		}else{
+			alert("1件もヒットしませんでした！");
+		}
+	}
+}
+function send_parent(from, target){
+	var src = document.getElementById(from).value;
+	window.opener.document.getElementById(target).value = src;
+}
+function data_export(){
+	var data_after = document.getElementById("ta_after").value;
+	var data_sub = document.getElementById("ta_sub").value;
+	var d = window.open().document;
+	d.writeln('<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><title>Export</title>');
+	d.writeln('<style>*{font-family:"メイリオ",Meiryo,sans-serif;margin:0;}');
+	d.writeln('h1{margin: 10px 0;}dt{margin:20px 0 8px 0;}pre{font-size:90%;}</style></head>');
+	d.writeln('<body></body></html>');
+	var pr = d.getElementsByTagName("body").item(0);
+	var elm_h1 = d.createElement("h1");
+	elm_h1.textContent = "Export";
+	pr.appendChild(elm_h1);
+	var elm_dl = d.createElement("dl");
+	elm_dl.setAttribute("id", "exportdl");
+	pr.appendChild(elm_dl);
+	var pr_elm = d.getElementById("exportdl");
+	var dt1 = d.createElement("dt");
+	dt1.innerHTML = "<strong>After Text:</strong>";
+	pr_elm.appendChild(dt1);
+	var pre1 = d.createElement("pre");
+	pre1.textContent = data_after;
+	pr_elm.appendChild(pre1);
+	var dt2 = d.createElement("dt");
+	dt2.innerHTML = "<strong>Sub Text:</strong>";
+	pr_elm.appendChild(dt2);
+	var pre2 = d.createElement("pre");
+	pre2.textContent = data_sub;
+	pr_elm.appendChild(pre2);
+}
+function browse_w3c_valid(){
+	window.open("http://validator.w3.org/#validate_by_input");
+}
+</script>
+<h1>W3C Comment-Editor</h1>
+<label for="ta_before"><strong>Before Text:</strong></label>
+<button onclick="get_line_num()">LineNum</button>
+<button onclick="delete_this_text('ta_before')">Clear</button>
+<button onclick="delete_all_text()">ClearAllText</button>
+<button onclick="tag_reference()">TagReference</button>
+<button onclick="data_export()">Export</button>
+<button onclick="browse_w3c_valid()">BrowseW3C</button>
+<br>
+<textarea id="ta_before"></textarea>
+<br>
+<label for="ta_after"><strong>After Text:</strong></label>
+<button onclick="tagline_delete('ta_after')">TagDel</button>
+<button onclick="br2_delete('ta_after')">BrDel</button>
+<select id="comments"></select>
+<button onclick="this_text_insert('comments', 'ta_after')">Insert</button>
+<button onclick="br_insert('ta_after')">Br</button>
+<button onclick="delete_this_text('ta_after')">Clear</button>
+<button onclick="send_parent('ta_after','description')">Send</button>
+<br>
+<label for="ta_after_searchword">Search Word:</label>
+<input type="text" id="ta_after_searchword">
+<label for="ta_after_replaceword">Replace Word:</label>
+<input type="text" id="ta_after_replaceword">
+<button onclick="text_replace('ta_after_searchword','ta_after_replaceword','ta_after')">Replace</button>
+<br>
+<textarea id="ta_after"></textarea>
+<br>
+<label for="ta_sub"><strong>Sub Text:</strong></label>
+<button onclick="copy_down()">CpDown</button>
+<button onclick="copy_up()">CpUp</button>
+<select id="comments2"></select>
+<button onclick="this_text_insert('comments2', 'ta_sub')">Insert</button>
+<button onclick="br_insert('ta_sub')">Br</button>
+<button onclick="delete_this_text('ta_sub')">Clear</button>
+<button onclick="send_parent('ta_sub','srccode')">Send</button>
+<br>
+<label for="ta_sub_searchword">Search Word:</label>
+<input type="text" id="ta_sub_searchword">
+<label for="ta_sub_replaceword">Replace Word:</label>
+<input type="text" id="ta_sub_replaceword">
+<button onclick="text_replace('ta_sub_searchword','ta_sub_replaceword','ta_sub')">Replace</button>
+<br>
+<textarea id="ta_sub"></textarea>
+</body>
+</html>

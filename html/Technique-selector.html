@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>TC-Selecttor</title>
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif;}
+h1 {font-size: 170%; margin-top:0;}
+label {font-size: 90%; margin-right: 10px;}
+#tar_tc {width: 70px;}
+textarea {font-size:80%; height: 8em;}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+function create_bkm(){
+	var tech_id = document.getElementById("tar_tc").value;
+	var str = "";
+	str += "javascript:(function(){";
+	str += 'var tech = document.getElementById("techList");';
+	str += 'var pat = new RegExp(/.*' + tech_id + '/);';
+	str += "for(var i=0; i<tech.options.length; i++){";
+	str += "var row = tech.options[i].text;";
+	str += "if(row.match(pat)!==null){";
+	str += "tech.selectedIndex = i;";
+	str += 'var event = document.createEvent("HTMLEvents");';
+	str += 'event.initEvent("change", true, false);';
+	str += "tech.dispatchEvent(event);";
+	str += "break;";
+	str += "}";
+	str += "}";
+	str += "})();";
+	document.getElementById("bkm").value = str;
+}
+function delete_text(){
+	document.getElementById("bkm").value = "";
+}
+</script>
+<h1>Technique Selector</h1>
+<label for="tar_tc">実装番号</label>
+<input type="text" id="tar_tc">
+<button onclick="create_bkm()">Create</button>
+<button onclick="delete_text()">Delete</button><br>
+<textarea id="bkm"></textarea>
+</body>
+</html>

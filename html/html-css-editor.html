@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Easy HTML/CSS Editor</title>	
+<style type="text/css">
+* { font-family: "メイリオ",Meiryo,sans-serif;}
+input, button { font-size: 90%; }
+label { font-weight: bold; }
+#html_editor { width: 100%; height: 150px; font-size: 90%; }
+#css_editor { width: 100%; height: 150px; font-size: 90%; }
+#pup_display { width: 100%; height: 460px; font-size: 90%; }
+</style>
+</head>
+<body>
+<script type="text/javascript">
+function do_preview() {
+  var html_text = document.getElementById("html_editor").value;
+  var css_text = document.getElementById("css_editor").value;
+  var iframe = document.getElementById("pup_display");
+  var iframe_doc = iframe.contentWindow.document;
+  iframe_doc.open();
+  iframe_doc.write("<html><head></head><body></body></html>");
+  iframe_doc.close();
+  if(iframe_doc.head.getElementsByTagName("style").item(0) == null){
+    var style_element = document.createElement("style");
+    style_element.textContent = css_text;
+    iframe_doc.head.appendChild(style_element);
+  } else {
+    var old_style_element = iframe_doc.head.getElementsByTagName("style").item(0);
+    old_style_element.textContent = css_text;
+  }
+  if(iframe_doc.body.getElementsByTagName("div").item(0) == null) {
+    var body_element = iframe_doc.createElement("div");
+    body_element.innerHTML = html_text;
+    iframe_doc.body.appendChild(body_element);
+  } else {
+    var old_body_element = iframe_doc.body.getElementsByTagName("div").item(0);
+    old_body_element.innerHTML = html_text;
+  }
+}
+function do_clear() {
+  var iframe = document.getElementById("pup_display");
+  var iframe_doc = iframe.contentWindow.document;
+  var style_dom = iframe_doc.head.getElementsByTagName("style").item(0);
+  var body_dom = iframe_doc.body.getElementsByTagName("div").item(0);
+  iframe_doc.head.removeChild(style_dom);
+  iframe_doc.body.removeChild(body_dom);
+}
+</script>
+<h1>Easy HTML/CSS Editor</h1>
+<label>HTML</label><br>
+<textarea id="html_editor"></textarea><br>
+<label>CSS</label><br>
+<textarea id="css_editor"></textarea><br>
+<button onclick="do_preview()">プレビュー実行</button>
+<button onclick="do_clear()">表示クリア</button><br>
+<iframe id="pup_display"></iframe>
+</body>
+</html>

@@ -1,0 +1,1 @@
+javascript:(function(){var%20url%20=%20location.href;var%20pat%20=%20new%20RegExp(/projID\/([0-9]+)/);var%20arr%20=%20url.match(pat);var%20new_url%20=%20"https://jis.infocreate.co.jp/diagnose/indexv2/report/projID/"%20+%20arr[1].toString();window.open(new_url,%20"_blank");})();

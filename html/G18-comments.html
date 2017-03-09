@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>CCA CE(V2)</title>	
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif; }
+label {font-size: 90%;}
+#source { width: 450px; height: 10em; font-size: 90%; margin-bottom: 15px; }
+#source2 { width: 450px; height: 8em; font-size: 90%; margin-bottom: 15px; }
+</style>
+</head>
+<body onload="create_snippet_select()">
+<script type="text/javascript">
+function create_snippet_select(){
+  var keylist = "～のバナー|～のメニュー|～のボタン|～の文字|～の文字画像|～の見出し|「 」|（　）|【 】|上の|下の|左の|右の|上下左右";
+  var keyarr = keylist.split("|");
+  var target = document.getElementById("snippet");
+  for(var i=0; i<keyarr.length; i++){
+    var opt = document.createElement("option");
+    opt.setAttribute("id", i);
+    opt.textContent = keyarr[i].toString();
+    target.appendChild(opt);
+  }
+}
+function get_text(){
+	return document.getElementById("source").value;
+}
+function set_text(str){
+	document.getElementById("source").value = str;
+}
+function delete_text(){
+	document.getElementById("source").value = "";
+}
+function delete_subtext(){
+	document.getElementById("source2").value = "";
+}
+function copy_bottom(){
+	var str = get_text();
+	if(document.getElementById("source2")==null){
+		alert("サブテキスト欄がありません");
+	}else{
+		document.getElementById("source2").value = str;
+	}
+}
+function copy_up(){
+	var str = document.getElementById("source2").value;
+	set_text(str);
+}
+function clean(){
+	var src = get_text();
+	src=src.replace(/\n\n/g, "\n");
+	set_text(src);
+}
+function write_comment(){
+	var src = get_text();
+	if(get_radio_val()=="G18"){
+	  src = "以下のコンテンツがコントラスト比4.5:1以上を満たさない\n" + src;
+  } else {
+    src = "以下のコンテンツがコントラスト比3:1以上を満たさない\n" + src;
+  }
+	set_text(src);
+}
+function get_radio_val(){
+	var ret = "";
+  var arr = document.getElementsByName("cd");
+  for(var i=0; i<arr.length; i++){
+  	if(arr[i].checked){
+  		ret = arr[i].value;
+  		break;
+  	}
+  }
+  return ret;
+}
+function get_caret(target){
+  var ta = document.getElementById(target);
+  var start = ta.selectionStart;
+  return start;
+}
+function text_insert(target, str){
+  var ta = document.getElementById(target);
+  var taval = ta.value;
+  var caret = get_caret(target);
+  var first2caret = taval.substring(0, caret);
+  var caret2end = taval.substring(caret, taval.length);
+  var rdmstr = first2caret + str + caret2end;
+  ta.value = rdmstr;
+}
+function this_text_insert(src, target){
+  var sc = document.getElementById(src);
+  var text = sc.value;
+  text_insert(target, text);
+}
+function br_insert(target){
+  text_insert(target, "\n");
+}
+function create_textarea(){
+	if(document.getElementById("source2")==null){
+	  b = document.getElementsByTagName("body").item(0);
+    bt1 = document.createElement("button");
+    bt1.setAttribute("onclick", "br_insert('source2')");
+    bt1.textContent = "Br";
+    b.appendChild(bt1);
+	  bt2 = document.createElement("button");
+	  bt2.setAttribute("onclick", "delete_subtext()");
+	  bt2.textContent="Del";
+	  b.appendChild(bt2);
+	  bt3 = document.createElement("button");
+	  bt3.setAttribute("onclick", "copy_up()");
+    bt3.textContent = "CopyUp";
+	  b.appendChild(bt3);
+	  br = document.createElement("br");
+	  b.appendChild(br);
+ 	  e = document.createElement("textarea");
+	  e.setAttribute("id", "source2");
+	  b.appendChild(e);
+  }
+}
+</script>
+<h1>CCA Comment-Editor <small>(V2)</small></h1>
+<label><input type="radio" name="cd" id="cd18" value="G18" checked="checked">G18</label>
+<label><input type="radio" name="cd" id="cd145" value="G145">G145</label>
+<select id="snippet"></select>
+<button onclick="this_text_insert('snippet','source')">Insert</button>
+<br>
+<button onclick="clean()">Clean</button>
+<button onclick="br_insert('source')">Br</button>
+<button onclick="write_comment()">Comment</button>
+<button onclick="delete_text()">Del</button>
+<button onclick="create_textarea()">SubText</button>
+<button onclick="copy_bottom()">CpBottom</button><br>
+<textarea id="source"></textarea><br>
+</body>
+</html>

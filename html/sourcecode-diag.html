@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>チェックツール</title>	
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif; }
+label {font-size: 90%;}
+#my_search_text, #my_replace_text {width: 90px;}
+#reportArea { boder:1px solid #ccc; font-size: 90%; width: 600px; height: 200px; overflow: scroll;}
+</style>
+</head>
+<body onload="create_guidelines(); create_survey_flag(); create_pageids();">
+
+<script type="text/javascript">
+
+function do_reporting() {
+  var url = location.href;
+  var xmlHttp;
+  xmlHttp = new XMLHttpRequest();
+  xmlHttp.open("GET", url, false);
+  xmlHttp.send(null);
+  var result = xmlHttp.responseText;
+  document.getElementById("reportArea").value = result;
+}
+function tx_clean(str) {
+  var pat = new RegExp(/\t+/g);
+  str = str.replace(pat, "");
+  return str;
+}
+function clear_reporting() {
+  document.getElementById("reportArea").value = "";
+}
+function text_all_select() {
+  var target = document.getElementById("reportArea");
+  target.focus();
+  target.select();
+}
+function error_hanting() {
+  var pat = new RegExp(/Error:.*\n\n.+\n\n.+/mg);
+  var pasted = document.getElementById("reportArea").value;
+  var arr = pasted.match(pat);
+  var str = "";
+  for(var i=0; i<arr.length; i++) {
+    var t = arr[i].toString();
+    str += t + "\n\n";
+  }
+  str = str.replace(/^ +/mg, "");
+  str = str.replace(/, column.+/mg, "");
+  str = str.replace(/From /mg, "");
+  document.getElementById("reportArea").value = str;
+}
+</script>
+<h1>ソースコード参照ツール</h1>
+<button onclick="do_reporting()">再読込</button>
+<button onclick="text_all_select()">全選択</button>
+<button onclick="clear_reporting()">クリア</button>
+<button onclick="error_hanting()">エラー抽出</button>
+<textarea id="reportArea"></textarea>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>GL-Selecttor</title>
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif;}
+h1 {font-size: 170%; margin-top:0;}
+label {font-size: 90%; margin-right: 10px;}
+textarea {font-size:80%; height: 8em;}
+</style>
+</head>
+<body onload="create_select()">
+<script type="text/javascript">
+function create_select(){
+	var arr = [
+		"7.1.1.1",
+		"7.1.2.1",
+		"7.1.2.2",
+		"7.1.2.3",
+		"7.1.2.4",
+		"7.1.2.5",
+		"7.1.3.1",
+		"7.1.3.2",
+		"7.1.3.3",
+		"7.1.4.1",
+		"7.1.4.2",
+		"7.1.4.3",
+		"7.1.4.4",
+		"7.1.4.5",
+		"7.2.1.1",
+		"7.2.1.2",
+		"7.2.2.1",
+		"7.2.2.2",
+		"7.2.3.1",
+		"7.2.4.1",
+		"7.2.4.2",
+		"7.2.4.3",
+		"7.2.4.4",
+		"7.2.4.5",
+		"7.2.4.6",
+		"7.2.4.7",
+		"7.3.1.1",
+		"7.3.1.2",
+		"7.3.2.1",
+		"7.3.2.2",
+		"7.3.2.3",
+		"7.3.2.4",
+		"7.3.3.1",
+		"7.3.3.2",
+		"7.3.3.3",
+		"7.3.3.4",
+		"7.4.1.1",
+		"7.4.1.2"
+	];
+	var element = document.getElementById("tar_gd");
+	for(var i=0; i<arr.length; i++){
+		var row = arr[i].toString();
+		var opt = document.createElement("option");
+		opt.setAttribute("value", row);
+		opt.textContent = row;
+		element.appendChild(opt);
+	}
+}
+function create_bkm(){
+	var src = document.getElementById("tar_gd");
+	var idx = src.selectedIndex;
+	var guideline_id = src.options[idx].value;
+	var str = "";
+	str += "javascript:(function(){";
+	str += 'var pat = new RegExp("' + guideline_id + '");';
+	str += 'var gds = document.getElementById("guideline");';
+	str += 'for(var i=0; i<gds.options.length; i++){';
+	str += "var row = gds.options[i].text;";
+	str += "if(row.match(pat)!==null){";
+	str += "gds.selectedIndex = i;";
+	str += 'var event = document.createEvent("HTMLEvents");';
+	str += 'event.initEvent("change", true, false);';
+	str += "gds.dispatchEvent(event);";
+	str += "break;";
+	str += "}";
+	str += "}";
+	str += "})();";
+	document.getElementById("bkm").value = str;
+}
+function delete_text(){
+	document.getElementById("bkm").value = "";
+}
+</script>
+<h1>Guideline Selector</h1>
+<label for="tar_gd">JIS番号</label>
+<select id="tar_gd"></select>
+<button onclick="create_bkm()">Create</button>
+<button onclick="delete_text()">Delete</button><br>
+<textarea id="bkm"></textarea>
+</body>
+</html>

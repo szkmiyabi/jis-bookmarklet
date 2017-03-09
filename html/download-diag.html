@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>CCA CE(V2)</title>	
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif; }
+label {font-size: 90%;}
+#my_search_text, #my_replace_text {width: 90px;}
+</style>
+</head>
+<body onload="">
+<script type="text/javascript">
+function modify_down() {
+  var url = location.href;
+  var pat = new RegExp(/projID\/([0-9]+)/);
+  var arr = url.match(pat);
+  var new_url = "https://jis.infocreate.co.jp/diagnose/indexv2/xlsxdownload2/projID/" + arr[1].toString() + "/download/true";
+  window.open(new_url, "_blank");
+}
+function result_down() {
+  var url = location.href;
+  var pat = new RegExp(/projID\/([0-9]+)/);
+  var arr = url.match(pat);
+  var new_url = "https://jis.infocreate.co.jp/diagnose/indexv2/xlsxdownload/projID/" + arr[1].toString() + "/download/true";
+  window.open(new_url, "_blank");
+}
+function result_page() {
+  var url = location.href;
+  var pat = new RegExp(/projID\/([0-9]+)/);
+  var arr = url.match(pat);
+  var new_url = "https://jis.infocreate.co.jp/diagnose/result/index/projID/" + arr[1].toString();
+  window.open(new_url, "_blank");
+}
+function page_cnt() {
+  var urls = document.getElementById("urlList");
+  var cnt = urls.options.length;
+  document.getElementById("ta").value = "ページ数 " + cnt;
+}
+</script>
+<h1>クイックアクセス</h1>
+<button onclick="modify_down()">修正指示書</button>
+<button onclick="result_down()">検査結果</button>
+<button onclick="result_page()">検査証明書</button>
+<br>
+<button onclick="page_cnt()">検査ページ数検知</button>
+<textarea id="ta"></textarea>
+</body>
+</html>

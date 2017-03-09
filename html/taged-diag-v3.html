@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>CCA CE(V2)</title>	
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif; }
+label {font-size: 90%;}
+#my_search_text, #my_replace_text {width: 90px;}
+</style>
+</head>
+<body onload="create_comment_ctrl_select();create_target_ctrl_select();create_tag_ctrl_select();create_attr_ctrl_select();create_prop_ctrl_select();create_sv_ctrl_select()">
+<script type="text/javascript">
+var cmt_str = "代替テキストが十分でない|段落の体裁を取っている箇所でp要素が使用されていない";
+var tag_str = "<strong></strong>|<span></span>|<p></p>|<ul><li></li></ul>|<ol><li></li></ol><li></li>|<dl><dt></dt><dd></dd></dl>|<dt></dt>|<dd></dd>|<em></em>|<h ></h >";
+var attr_str = "style|alt|title|for|id|class|lang|xml:lang";
+var prop_str = "color: red;|text-decoration: underline;"
+var sv_hash = {
+  "PASS":"適合",
+  "PASS2":"適合(注記)",
+  "FAIL":"不適合",
+  "FAIL2":"不適合(要再判定)",
+  "NA":"非適用"
+};
+var trg_hash = {
+    "comments": "判定コメント",
+    "description": "対象ソースコード",
+    "srccode":"修正ソースコード"
+};
+function create_sv_ctrl_select() {
+  var target = document.getElementById("sv_ctrl");
+  var fsopt = document.createElement("option");
+  fsopt.setAttribute("value", "");
+  fsopt.textContent = "判定選択";
+  target.appendChild(fsopt);
+  for(var key in sv_hash) {
+    var opt = document.createElement("option");
+    opt.setAttribute("value", key);
+    opt.textContent = sv_hash[key].toString();
+    target.appendChild(opt);
+  }
+}
+function create_comment_ctrl_select(){
+  var keyarr = cmt_str.split("|");
+  var target = document.getElementById("comment_ctrl");
+  for(var i=0; i<keyarr.length; i++){
+    var opt = document.createElement("option");
+    opt.setAttribute("id", i);
+    opt.textContent = keyarr[i].toString();
+    target.appendChild(opt);
+  }
+}
+function create_tag_ctrl_select(){
+  var keyarr = tag_str.split("|");
+  var target = document.getElementById("tag_ctrl");
+  for(var i=0; i<keyarr.length; i++){
+    var opt = document.createElement("option");
+    opt.setAttribute("id", i);
+    opt.textContent = keyarr[i].toString();
+    target.appendChild(opt);
+  }
+}
+function create_attr_ctrl_select(){
+  var keyarr = attr_str.split("|");
+  var target = document.getElementById("attr_ctrl");
+  for(var i=0; i<keyarr.length; i++){
+    var opt = document.createElement("option");
+    opt.setAttribute("id", i);
+    opt.textContent = keyarr[i].toString();
+    target.appendChild(opt);
+  }
+}
+function create_target_ctrl_select() {
+  var target = document.getElementById("target_ctrl");
+  for(var key in trg_hash) {
+    var opt = document.createElement("option");
+    opt.setAttribute("value", key);
+    opt.textContent = trg_hash[key].toString();
+    target.appendChild(opt);
+  }
+}
+function create_prop_ctrl_select() {
+  var keyarr = prop_str.split("|");
+  var target = document.getElementById("prop_ctrl");
+  for(var i=0; i<keyarr.length; i++){
+    var opt = document.createElement("option");
+    opt.setAttribute("id", i);
+    opt.textContent = keyarr[i].toString();
+    target.appendChild(opt);
+  }
+}
+function get_text(){
+  var target = get_select_val();
+	return document.getElementById(target).value;
+}
+function set_text(str){
+  var target = get_select_val();
+	document.getElementById(target).value = str;
+}
+function delete_text(){
+  var target = get_select_val();
+	document.getElementById(target).value = "";
+}
+function clean(){
+	var src = get_text();
+	src=src.replace(/\n\n/g, "\n");
+	set_text(src);
+}
+function get_select_val() {
+  var target = document.getElementById("target_ctrl");
+  return target.options[target.selectedIndex].value;
+}
+function get_caret(){
+  var target = get_select_val();
+  var ta = document.getElementById(target);
+  var start = ta.selectionStart;
+  return start;
+}
+function text_insert(str){
+  var target = get_select_val();
+  var ta = document.getElementById(target);
+  var taval = ta.value;
+  var caret = get_caret();
+  var first2caret = taval.substring(0, caret);
+  var caret2end = taval.substring(caret, taval.length);
+  var rdmstr = first2caret + str + caret2end;
+  ta.value = rdmstr;
+}
+function this_ctrl_insert(src) {
+  var target = get_select_val();
+  var from = document.getElementById(src);
+  var ret = from.options[from.selectedIndex].text;
+  if(src == "attr_ctrl") {
+    text_insert(ret + '=""');
+  } else {
+    text_insert(ret);
+  }
+}
+function br_insert(){
+  var target = get_select_val();
+  text_insert("\n");
+}
+function do_replace() {
+  var target = get_select_val();
+  var sh = document.getElementById("my_search_text").value;
+  var rp = document.getElementById("my_replace_text").value;
+  var src = document.getElementById(target).value;
+  var pt = new RegExp(sh, "mg");
+  src = src.replace(pt, rp);
+  document.getElementById(target).value = src;
+}
+function cp_code() {
+  var from_val = document.getElementById("description").value;
+  document.getElementById("srccode").value = from_val;
+}
+function delete_all_text() {
+  var tx = document.getElementsByTagName("textarea");
+  for(var i=0; i<tx.length; i++) {
+    var obj = tx.item(i);
+    var id = obj.getAttribute("id");
+    if(id == "comments" || id == "description" || id == "srccode") {
+      obj.value = "";
+    }
+  }
+}
+function w3c_formatter(){
+  var src = document.getElementById("memo_ctrl").value;
+  src = rowhead_clean(src);
+  var pat = new RegExp(/, .+/g);
+  var arr = src.match(pat);
+  if(arr!==null){
+    src = src.replace(pat, "");
+    text_insert(src);
+  }else{
+    alert("W3Cバリデータの結果が貼り付けられていません！");
+  }
+}
+function rowhead_clean(str){
+  str=str.replace(/^ +/mg,"");
+  str=str.replace(/^\t+/mg,"");
+  return str;
+}
+function clear_memo_ctrl() {
+  document.getElementById("memo_ctrl").value = "";
+}
+function do_sv_select() {
+  var sv_ctrl = document.getElementById("sv_ctrl");
+  var sv_flag = sv_ctrl.options[sv_ctrl.selectedIndex].value;
+  if(sv_flag != "") {
+    var form = document.forms["diag_form"];
+    for(var i=0; i<form.elements.length; i++) {
+      var obj = form.elements[i].value;
+      if(obj == sv_flag) {
+        form.elements[i].click();
+        break;
+      }
+    }
+  }
+}
+function do_submit() {
+  var form=document.forms["diag_form"];
+    for(var i=0;i<form.elements.length;i++){
+    var obj=form.elements[i].type;
+    if(obj=="submit"){
+      form.elements[i].click();
+    }
+  }
+}
+function do_numbering() {
+  var comment = document.getElementById("comments").value;
+  var description = document.getElementById("description").value;
+  var srccode = document.getElementById("srccode").value;
+  comment = "1." + comment + "\n2.";
+  description = "1.\n" + description + "\n2.\n";
+  srccode = "1.\n" + srccode + "\n2.\n";
+  document.getElementById("comments").value = comment;
+  document.getElementById("description").value = description;
+  document.getElementById("srccode").value = srccode;
+}
+</script>
+<h1>検査内容エディタ</h1>
+<label>処理対象</label><select id="target_ctrl"></select>
+<button onclick="clean()">Clean</button>
+<button onclick="br_insert()">Br</button>
+<button onclick="delete_text()">Del</button>
+<button onclick="delete_all_text()">AllDel</button>
+<button onclick="cp_code()">Cp</button>
+<button onclick="do_numbering()">Num</button>
+<button onclick="do_submit()">Save</button>
+<br>
+<select id="sv_ctrl" onchange="do_sv_select()"></select>
+<br>
+<label>コメント</label><select id="comment_ctrl"></select>
+<button onclick="this_ctrl_insert('comment_ctrl')">挿入</button><br>
+<label>タグ</label><select id="tag_ctrl"></select><button onclick="this_ctrl_insert('tag_ctrl')">挿入</button>
+<label>属性</label><select id="attr_ctrl"></select><button onclick="this_ctrl_insert('attr_ctrl')">挿入</button>
+<br>
+<label>CSS</label><select id="prop_ctrl"></select><button onclick="this_ctrl_insert('prop_ctrl')">挿入</button>
+<br>
+<label>検索文字列</label><input type="text" id="my_search_text"><label>置換文字列</label><input type="text" id="my_replace_text">
+<button onclick="do_replace()">置換</button><br>
+<label>メモ</label><br>
+<textarea id="memo_ctrl"></textarea><br>
+<button onclick="w3c_formatter()">W3C_RP</button>
+<button onclick="clear_memo_ctrl()">Clear</button>
+<br><textarea id="comments"></textarea><br>
+<textarea id="description"></textarea><br>
+<textarea id="srccode"></textarea>
+</body>
+</html>

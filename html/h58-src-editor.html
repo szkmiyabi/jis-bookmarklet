@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>H58 SE(V2)</title>
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif;}
+h1 {font-size: 170%; margin-top:0;}
+label {font-size: 90%; margin-right: 5px;}
+#lang_select,#lang_select2,#attr_select{width:55px;}
+#ta_before,#ta_after,#ta_sub {font-size:80%; width:100%; max-width:500px; height: 13em;}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+var comments = [
+	"適切なlang属性が指定されていない"
+];
+var tags = {
+	span: "<span></span>",
+	div: "<div></div>",
+	p: "<p></p>"
+};
+var attrs = {
+	xml_lang: "xml:lang",
+	lang: "lang"
+};
+var langs = {
+	en: "英語",
+	ja: "日本語",
+	zh: "中国語",
+	ko: "韓国語",
+	de: "ドイツ語",
+	fr: "フランス語",
+	it: "イタリア語",
+	nl: "オランダ語",
+	pt: "ポルトガル語",
+	es: "スペイン語",
+	pl: "ポーランド語",
+	el: "ギリシャ語",
+	ru: "ロシア語",
+	he: "ヘブライ語",
+	hi: "ヒンディー語",
+	ar: "アラビア語",
+	la: "ラテン語",
+	sw: "スワヒリ語"
+};
+function create_comment_select(){
+	var src = document.getElementById("comment_select");
+	for(var i=0; i<comments.length; i++){
+		var opt = document.createElement("option");
+		opt.setAttribute("value", i);
+		opt.textContent = comments[i].toString();
+		src.appendChild(opt);
+	}
+}
+function create_tag_select(){
+	var src = document.getElementById("tag_select");
+	for(var key in tags){
+		var opt = document.createElement("option");
+		opt.setAttribute("value", tags[key]);
+		opt.textContent = key;
+		src.appendChild(opt);
+	}
+}
+function create_lang_select(){
+	var src = document.getElementById("lang_select");
+	for(var key in langs){
+		var opt = document.createElement("option");
+		opt.setAttribute("value", key);
+		opt.textContent = langs[key];
+		src.appendChild(opt);
+	}
+}
+function create_attr_select(){
+	var src = document.getElementById("attr_select");
+	for(var key in attrs){
+		var opt = document.createElement("option");
+		opt.setAttribute("value", attrs[key]);
+		opt.textContent = key;
+		src.appendChild(opt);
+	}
+}
+window.onload = function(){
+	create_tag_select();
+	create_comment_select();
+	create_lang_select();
+	create_attr_select();
+}
+function lang_insert(target, from){
+	var src = document.getElementById(from);
+	var idx = src.selectedIndex;
+	var tarval = src.options[idx].value;
+	var doctype = "";
+	try{
+		doctype = get_doctype();
+	}finally{}
+	var str = "";
+	if(doctype=="xhtml"){
+		str = ' xml:lang="' + tarval + '" lang="' + tarval + '"';
+	}else{
+		str = ' lang="' + tarval + '"';
+	}
+	text_insert(target, str);
+}
+function get_doctype(){
+	var doctype = "";
+	var type = "html";
+	if(window.opener!==null){
+		var d = window.opener.document.getElementById("source");
+		var dch=d.childNodes;
+		doctype = dch.item(2).nodeValue;
+		if(doctype!==""){
+			var pat1 = new RegExp(/<\?xml.*?>/);
+			var pat2 = new RegExp(/.*XHTML.*/);
+			if(doctype.match(pat1)!==null||doctype.match(pat2)!==null){
+				type = "xhtml";
+			}
+		}
+	}
+	return type;
+}
+function get_caret(target){
+	var ta = document.getElementById(target);
+	var start = ta.selectionStart;
+	return start;
+}
+function text_insert(target, str){
+	var ta = document.getElementById(target);
+	var taval = ta.value;
+	var caret = get_caret(target);
+	var first2caret = taval.substring(0, caret);
+	var caret2end = taval.substring(caret, taval.length);
+	var rdmstr = first2caret + str + caret2end;
+	ta.value = rdmstr;
+}
+function br_insert(target){
+	text_insert(target, "\n");
+}
+function copy_bottom(){
+	var sc = document.getElementById("ta_before");
+	var text = sc.value;
+	text_insert("ta_after", text);
+}
+function clean(str){
+   str=str.replace(/^ +/m,"");
+   str=str.replace(/\t+/m,"");
+   str=str.replace(/(\r\n|\r|\n)/g,""); 
+   return str;
+}
+function delete_this_text(target){
+	document.getElementById(target).value="";
+}
+function delete_all_text(){
+	var tas = document.getElementsByTagName("textarea");
+	for(var i=0; i<tas.length; i++){
+		var row = tas.item(i);
+		row.value = "";
+	}
+}
+function send_comment(){
+	var src = document.getElementById("comment_select");
+	var idx = src.selectedIndex;
+	var srcval = src.options[idx].text;
+	var target = window.opener.document.getElementById("comments");
+	var tarval = target.value;
+	tarval = tarval + srcval + "\n";
+	target.value = tarval;
+}
+function tag_insert(target, from){
+	var src = document.getElementById(from);
+	var idx = src.selectedIndex;
+	var srcval = src.options[idx].value;
+	text_insert(target, srcval);
+}
+function attr_insert(target, from){
+	var src = document.getElementById(from);
+	var idx = src.selectedIndex;
+	var srcval = src.options[idx].value;
+	var attrval = prompt("lang属性値を入力してください");
+	srcval = " " + srcval + '="' + attrval + '"';
+	text_insert(target, srcval);
+}
+function send_to(target, from){
+	var target = window.opener.document.getElementById(target);
+	var tarval = target.value;
+	var src = document.getElementById(from).value;
+	tarval = tarval + src + "\n";
+	target.value = tarval;
+}
+function langcode_reference(){
+	window.open("http://www.tagindex.com/html5/basic/langcode.html");
+}
+</script>
+<h1>H58 Source-Editor<small>(V2)</small></h1>
+<label for="comment_select"><strong>Comment: </strong></label>
+<select id="comment_select">
+</select>
+<button onclick="send_comment()">Send</button>
+<button onclick="langcode_reference()">LCReference</button>
+<br>
+<label for="tag_select"><strong>Tag:</strong></label>
+<select id="tag_select"></select>
+<button onclick="tag_insert('ta_before', 'tag_select')">Insert</button>
+<label for="lang_select"><strong>Lang:</strong></label>
+<select id="lang_select"></select>
+<button onclick="lang_insert('ta_before', 'lang_select')">Insert</button>
+<label for="attr_select"><strong>Attr:</strong></label>
+<select id="attr_select"></select>
+<button onclick="attr_insert('ta_before', 'attr_select')">Insert</button>
+<br>
+<br>
+<label for="ta_before"><strong>Before Text:</strong></label>
+<button onclick="br_insert('ta_before')">Br</button>
+<button onclick="delete_this_text('ta_before')">Clear</button>
+<button onclick="delete_all_text()">ClearAll</button>
+<button onclick="send_to('description', 'ta_before')">Send</button>
+<br>
+<textarea id="ta_before"></textarea>
+<br>
+<label for="ta_after"><strong>After Text:</strong></label>
+<button onclick="copy_bottom()">CpBottom</button>
+<button onclick="br_insert('ta_after')">Br</button>
+<button onclick="delete_this_text('ta_after')">Clear</button>
+<button onclick="send_to('srccode', 'ta_after')">Send</button>
+<br>
+<textarea id="ta_after"></textarea>
+</body>
+</html>

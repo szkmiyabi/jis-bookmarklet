@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>SourceHTML-Editor</title>	
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif; }
+label {font-size: 90%; font-weight: bold;}
+textarea { width: 100%; height: 15em; font-size: 90%; }
+</style>
+</head>
+<body>
+<script type="text/javascript">
+var tags = {
+  strong: "<strong></strong>",
+  em: "<em></em>",
+  span: "<span></span>"
+};
+var stylesets = {
+  fontsize: "font-size:",
+  color: "color:",
+  background: "background:"
+};
+var attrs = {
+  style: "style"
+};
+var comms = [
+  "インデント目的でblockquote要素を使用している",
+  "取り消し線はdel要素でマークアップする。",
+  "強調を意図している、セマンティックなマークアップが必要。",
+  "著作者情報はaddress要素でマークアップすることが望ましい。",
+  "非推奨タグが使用されている"
+];
+var snippets = [
+  " を入力",
+  " を選択"
+];
+window.onload = function(){
+  create_tag_select();
+  create_attr_select();
+  create_styleset_select();
+  create_comment_select();
+  create_snippet_select();
+}
+function create_tag_select(){
+  var select = document.getElementById("tag_select");
+  for(var key in tags){
+    var opt = document.createElement("option");
+    opt.setAttribute("value", tags[key]);
+    opt.textContent = key;
+    select.appendChild(opt);
+  }
+}
+function create_attr_select(){
+  var select = document.getElementById("attr_select");
+  for(var key in attrs){
+    var opt = document.createElement("option");
+    opt.setAttribute("value", attrs[key]);
+    opt.textContent = key;
+    select.appendChild(opt);
+  }
+}
+function create_styleset_select(){
+  var select = document.getElementById("styleset_select");
+  for(var key in stylesets){
+    var opt = document.createElement("option");
+    opt.setAttribute("value", stylesets[key]);
+    opt.textContent = key;
+    select.appendChild(opt);
+  }
+}
+function create_comment_select(){
+  var select = document.getElementById("comment_select");
+  for(var i=0; i<comms.length; i++){
+    var opt = document.createElement("option");
+    opt.setAttribute("value",i);
+    opt.textContent = comms[i].toString();
+    select.appendChild(opt);
+  }
+}
+function create_snippet_select(){
+  var select = document.getElementById("snippet_select");
+  for(var i=0; i<snippets.length; i++){
+    var opt = document.createElement("option");
+    opt.setAttribute("value",i);
+    opt.textContent = snippets[i].toString();
+    select.appendChild(opt);
+  }
+}
+function get_caret(target){
+  var ta = document.getElementById(target);
+  var start = ta.selectionStart;
+  return start;
+}
+function text_insert(target, str){
+  var ta = document.getElementById(target);
+  var taval = ta.value;
+  var caret = get_caret(target);
+  var first2caret = taval.substring(0, caret);
+  var caret2end = taval.substring(caret, taval.length);
+  var rdmstr = first2caret + str + caret2end;
+  ta.value = rdmstr;
+}
+function insert_tag(){
+  var target = document.getElementById("tag_select");
+  var idx = target.selectedIndex;
+  var tarval = target.options[idx].value;
+  text_insert("ta_main", tarval);
+}
+function insert_attr(){
+  var target = document.getElementById("attr_select");
+  var idx = target.selectedIndex;
+  var tarval = target.options[idx].value;
+  tarval = " " + tarval + '=""';
+  text_insert("ta_main", tarval);
+}
+function insert_styleset(){
+  var target = document.getElementById("styleset_select");
+  var idx = target.selectedIndex;
+  var tarval = target.options[idx].value;
+  tarval = tarval + " ;";
+  text_insert("ta_main", tarval);
+}
+function insert_snippet (){
+  var target = document.getElementById("snippet_select");
+  var idx = target.selectedIndex;
+  var tarval = target.options[idx].text;
+  text_insert("ta_main", tarval);
+}
+function br_insert(target){
+  text_insert(target, "\n");
+}
+function tag_clean(target){
+  var str = "";
+  var src = document.getElementById(target).value;
+  src = clean(src);
+  var pat = new RegExp(/(<.*?>)(.+?)(<\/.*?>)/);
+  var arr = src.match(pat);
+  if(arr!==null){
+    str = arr[2].toString();
+  }
+  document.getElementById(target).value = str;
+}
+function delete_this_text(target){
+  document.getElementById(target).value = "";
+}
+function clean(str){
+  str=str.replace(/^ +/m,"");
+  str=str.replace(/\t+/m,"");
+  str=str.replace(/(\r\n|\r|\n)/g,""); 
+  return str;
+}
+function send_text(){
+  var src = document.getElementById("ta_main").value;
+  window.opener.document.getElementById("srccode").value = src;
+}
+function send_description(){
+  var src = document.getElementById("ta_main").value;
+  window.opener.document.getElementById("description").value = src;
+}
+function send_comment(){
+  var src = document.getElementById("comment_select");
+  var idx = src.selectedIndex;
+  var str = src.options[idx].text;
+  window.opener.document.getElementById("comments").value = str;
+}
+function load_srccode(){
+  var src = window.opener.document.getElementById("srccode").value;
+  document.getElementById("ta_main").value = src;
+}
+function copy_bottom(){
+  var src = document.getElementById("ta_main").value;
+  text_insert("ta_sub", src);
+}
+</script>
+<h1>SourceHTML-Editor <small>(V2)</small></h1>
+<label for="ta_main">Main Text: </label>
+<button onclick="load_srccode()">Load</button>
+<button onclick="tag_clean('ta_main')">TagClean</button>
+<button onclick="br_insert('ta_main')">Br</button>
+<button onclick="delete_this_text('ta_main')">Del</button>
+<button onclick="send_text()">Send</button>
+<button onclick="send_description()">SendDesc</button>
+<label>Tag: </label>
+<select id="tag_select"></select>
+<button onclick="insert_tag()">Insert</button>
+<label>Attribute: </label>
+<select id="attr_select"></select>
+<button onclick="insert_attr()">Insert</button>
+<label>StyleSet: </label>
+<select id="styleset_select"></select>
+<button onclick="insert_styleset()">Insert</button>
+<br>
+<label>Snippet: </label>
+<select id="snippet_select"></select>
+<button onclick="insert_snippet()">Insert</button>
+<br>
+<textarea id="ta_main"></textarea><br>
+<label for="ta_sub">Sub Text: </label>
+<button onclick="copy_bottom()">CpBottom</button>
+<button onclick="br_insert('ta_sub')">Br</button>
+<button onclick="delete_this_text('ta_sub')">Del</button>
+<label>Comments: </label>
+<select id="comment_select"></select>
+<button onclick="send_comment()">Send</button>
+<br>
+<textarea id="ta_sub"></textarea>
+</body>
+</html>

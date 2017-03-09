@@ -1,0 +1,1 @@
+javascript:(function(){var src=document.getElementById("srccode");var txt = src.value;src.value = txt.replace(/\n\n/g,"\n");})();

@@ -1,0 +1,19 @@
+//前のURLに戻る
+javascript:(function(){
+	var%20response=true;
+	var%20element=document.getElementById("urlList");
+	for(var%20i=0;i<element.options.length;i++){
+		if(element.options[i].selected){
+			var%20idx=i-1;
+			if(idx<0){
+				alert("これ以上戻れません！");
+				response=false;
+				break;
+			}else{
+				element.options[idx].selected = true;
+				break;
+			}
+		}
+	}
+	if(response)%20document.getElementById("submitURL").click();
+})();

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>チェックツール</title>	
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif; }
+#pup_urls { width: 500px; }
+#pup_display { width: 1024px; height: 500px;}
+</style>
+</head>
+<body onload="create_urls();do_load()">
+
+<script type="text/javascript">
+var hash = {
+  "mic0001":"http://www.soumu.go.jp/",
+  "mic0002":"http://www.soumu.go.jp/menu_syokai/index.html",
+  "mic0003":"http://www.soumu.go.jp/menu_sosiki/annai/map-1.html"
+};
+function create_urls() {
+  var select = document.getElementById("pup_urls");
+  for(var key in hash) {
+    var elm = document.createElement("option");
+    elm.setAttribute("value", key);
+    elm.textContent = "[" + key + "]" + hash[key].toString();
+    select.appendChild(elm);
+  }
+}
+function do_browse_tab() {
+  var target_src = document.getElementById("pup_urls");
+  var target_text_all = target_src.options[target_src.selectedIndex].text;
+  var pat = new RegExp(/(\[.+?\])(.+)/);
+  var arr = target_text_all.match(pat);
+  var target_text = arr[2].toString();
+  window.open(target_text, "_blank");
+}
+function do_load() {
+  var target_src = document.getElementById("pup_urls");
+  var target_text_all = target_src.options[target_src.selectedIndex].text;
+  var pat = new RegExp(/(\[.+?\])(.+)/);
+  var arr = target_text_all.match(pat);
+  var target_text = arr[2].toString();
+  var target_frame = document.getElementById("pup_display");
+  target_frame.setAttribute("src", target_text);
+}
+function do_next() {
+  var src = document.getElementById("pup_urls");
+  var max = src.length;
+  var idx = src.selectedIndex;
+  idx++;
+  if(idx >= max) {
+    alert("これ以上進めません");
+  } else {
+    src.selectedIndex = idx;
+    do_load();
+  }
+}
+function do_prev() {
+  var src = document.getElementById("pup_urls");
+  var min = 0;
+  var idx = src.selectedIndex;
+  idx--;
+  if(idx < min) {
+    alert("これ以上戻れません");
+  } else {
+    src.selectedIndex = idx;
+    do_load();
+  }
+}
+</script>
+<h1>検査対象ページ連続参照</h1>
+<label>参照URL</label>
+<select id="pup_urls" onchange="do_load()"></select>
+<button onclick="do_prev()">前へ</button>
+<button onclick="do_next()">次へ</button>
+<button onclick="do_load()">再読込み</button>
+<button onclick="do_browse_tab()">タブで開く</button><br>
+<iframe id="pup_display" src=""></iframe>
+</body>
+</html>

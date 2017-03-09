@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>CCA CE(V2)</title>	
+<style type="text/css">
+* {font-family: "メイリオ",Meiryo,sans-serif; }
+label {font-size: 90%;}
+#my_search_text, #my_replace_text {width: 90px;}
+</style>
+</head>
+<body onload="">
+<script type="text/javascript">
+function get_target() {
+  var obj = document.getElementById("ta");
+  return obj;
+}
+function set_text(str) {
+  var target = get_target();
+  target.value = str;
+}
+function get_text() {
+  var target = get_target();
+  return target.value;
+}
+function delete_text(){
+	var target = get_target();
+  target.value = "";
+}
+function clean(){
+	var src = get_text();
+	src=src.replace(/\n\n/g, "\n");
+	set_text(src);
+}
+function get_caret(){
+  var target = get_target();
+  var start = target.selectionStart;
+  return start;
+}
+function text_insert(str){
+  var ta = get_target();
+  var taval = ta.value;
+  var caret = get_caret();
+  var first2caret = taval.substring(0, caret);
+  var caret2end = taval.substring(caret, taval.length);
+  var rdmstr = first2caret + str + caret2end;
+  ta.value = rdmstr;
+}
+function br_insert(){
+  text_insert("\n");
+}
+function do_replace() {
+  var target = get_target();
+  var sh = document.getElementById("my_search_text").value;
+  var rp = document.getElementById("my_replace_text").value;
+  var src = target.value;
+  var pt = new RegExp(sh, "mg");
+  src = src.replace(pt, rp);
+  target.value = src;
+}
+</script>
+<h1>メモエディタ</h1>
+<button onclick="clean()">Clean</button>
+<button onclick="br_insert()">Br</button>
+<button onclick="delete_text()">Del</button><br>
+<label>検索文字列</label><input type="text" id="my_search_text"><label>置換文字列</label><input type="text" id="my_replace_text">
+<button onclick="do_replace()">置換</button><br>
+<textarea id="ta"></textarea>
+</body>
+</html>
