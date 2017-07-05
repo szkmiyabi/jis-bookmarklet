@@ -8,8 +8,8 @@ javascript:(function(){
 	}
 	resultUtil.prototype = {
 		is_survey_page: function() {
-			var pat1 = new RegExp(/\/diagnose\/indexv2\/index\/projID\/[0-9]+/);
-			var pat2 = new RegExp(/\/diagnose\/indexv2\/index\/reset\/false\/projID\/[0-9]+/);
+			var pat1 = new RegExp(/\/diagnose\/indexv2\/index\/projID\/\"*[0-9]+\"*/);
+			var pat2 = new RegExp(/\/diagnose\/indexv2\/index\/reset\/(true|false)\/projID\/\"*[0-9]+\"*/);
 			if(pat1.test(url) || pat2.test(url)) return true;
 			else return false;
 		},
