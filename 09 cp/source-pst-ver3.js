@@ -2,6 +2,92 @@
   cpt/pst bookmarklet
 ----------------------------*/
 javascript:(function(){
+	function bookMarkletterUtil() {
+		hash = {
+			"0": "適合",
+			"1": "適合(注記)",
+			"2": "不適合",
+			"3": "不適合(要再判定)",
+			"4": "非適用"
+		};
+		cp_hash = {
+			"1":"yes",
+			"0":"no",
+		};
+	}
+	bookMarkletterUtil.prototype = {
+		set_survey: function(flag) {
+			var rds = document.getElementsByName("bkm_result");
+			for(var i=0; i<rds.length; i++) {
+				var rd = rds.item(i);
+				var val = rd.value;
+				if(val === flag) {
+					this.diag_clean(flag);
+					rd.click();
+					break;
+				}
+			}
+		},
+		set_survey_copy: function(flag) {
+			var rds = document.getElementsByName("bkm_result_sync");
+			for(var i=0; i<rds.length; i++) {
+				var rd = rds.item(i);
+				var val = rd.value;
+				if(val === flag) {
+					rd.click();
+					break;
+				}
+			}
+		},
+		set_comment: function(str) {
+			var obj = document.getElementById("bkm_comments");
+			obj.value = str;
+		},
+		set_description: function(str) {
+			var obj = document.getElementById("bkm_descript");
+			obj.value = str;
+		},
+		set_srccode: function(str) {
+			var obj = document.getElementById("bkm_srccode");
+			obj.value = str;
+		},
+		get_survey_key: function(flag_word) {
+			var ret_key = "";
+			for(var key in hash) {
+				var val = hash[key];
+				if(val === flag_word) {
+					ret_key = key;
+					break;
+				}
+			}
+			return ret_key;
+		},
+		get_survey_cp_key: function(flag_word) {
+			var ret_key = "";
+			for(var key in cp_hash) {
+				var val = cp_hash[key];
+				if(val === flag_word) {
+					ret_key = key;
+					break;
+				}
+			}
+			return ret_key;
+		},
+		diag_clean: function(flag) {
+			switch(flag) {
+				case "PASS":
+					this.set_comment("");
+					this.set_srccode("");
+					break;
+				case "NA":
+					this.set_comment("");
+					this.set_description("");
+					this.set_srccode("");
+					break;
+			}
+		}
+	};
+
 	function surveyDialogUtil() {
 		url = window.location.href;
 		form = document.forms["diag_form"];
@@ -169,6 +255,7 @@ javascript:(function(){
 	};
 	function surveyPackageUtil() {
 		this.util = new surveyDialogUtil();
+
 		this.survey_copy =  function() {
 			var txt = "";
 			var str_tech = "";
@@ -240,9 +327,26 @@ javascript:(function(){
 				return null;
 			}
 		};
+		this.survey_paste_bkmk = function() {
+			this.bkm_util = new bookMarkletterUtil();
+			var src = prompt("コピーしたデータを貼り付けてください");
+			src = src.trim();
+			var arr = this.survey_paste_data_bind(src);
+			var key = this.bkm_util.get_survey_key(arr[0]);
+			this.bkm_util.set_survey(key);
+			var cp_key = this.bkm_util.get_survey_cp_key(arr[1]);
+			this.bkm_util.set_survey_copy(cp_key);
+			this.bkm_util.set_comment(arr[2]);
+			this.bkm_util.set_description(arr[3]);
+			this.bkm_util.set_srccode(arr[4]);
+		};
 	}
 
 	var pkg = new surveyPackageUtil();
-	pkg.survey_paste();
+	if(document.getElementById("bkm") === null) {
+		pkg.survey_paste();
+	} else {
+		pkg.survey_paste_bkmk();
+	}
 	
 })();
