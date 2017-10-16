@@ -100,6 +100,17 @@ javascript:(function(){
 				return false;
 			}
 		};
+
+		this.get_all_text = function() {
+			var str = "";
+			var pt = new RegExp(/[A-Z]+[0-9]+/);
+			for(var i=1; i<this.tech.options.length; i++) {
+				var opt = this.tech.options[i].text;
+				var opt_text = pt.test(opt.trim()) ? opt.match(pt)[0] : "";
+				str += opt_text + "\r\n";
+			}
+			return str;
+		};
 	}
 
 	var diag = new techDropdownUtil();
@@ -124,6 +135,9 @@ javascript:(function(){
 			break;
 		case "bottom":
 			diag.select_bottom();
+			break;
+		case "list":
+			alert(diag.get_all_text());
 			break;
 	}
 
