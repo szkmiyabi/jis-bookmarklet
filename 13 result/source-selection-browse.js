@@ -186,6 +186,7 @@ javascript:(function(){
 		this.pt1 = new RegExp(/(http.*:\/\/.+?\/)/);
 		this.pt2 = new RegExp(/(src|href)="(.+?)"/);
 		this.pt3 = new RegExp(/(http.*:\/\/.+)/);
+		this.pt4 = new RegExp(/(IFC1019|IFC1020|IFC1021)/);
 
 		this.get_this_url = function() {
 			if(this.sv_util.is_detail_page()) {
@@ -208,6 +209,11 @@ javascript:(function(){
 		this.is_valid_select = function(str) {
 			var tt = this.get_select_text();
 			if(this.pt0.test(tt)) return true;
+			else return false;
+		};
+		this.is_validate_tech_selected = function() {
+			var tt = this.get_select_text();
+			if(this.pt4.test(tt)) return true;
 			else return false;
 		};
 		this.get_select_text = function() {
@@ -237,10 +243,23 @@ javascript:(function(){
 				alert("エラーです。");
 			}
 		};
+		this.validate_page = function() {
+			var url = this.get_this_url();
+			if(this.pt3.test(url)) {
+				var burl = url.match(this.pt3)[1];
+				window.open('http://validator.w3.org/check?ss=1&group=0&verbose=1&uri=' + burl, "_blank");
+			}else{
+				alert("エラーです。");
+			}
+		};
 	}
 
 	var util = new repoUtilClass();
-	if(util.is_text_select()) util.browse_image();
-	else util.browse_page();
+	if(util.is_text_select()) {
+		if(util.is_validate_tech_selected()) util.validate_page();
+		else util.browse_image();
+	} else {
+		util.browse_page();
+	}
 
 })();
