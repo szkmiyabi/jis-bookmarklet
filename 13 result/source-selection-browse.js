@@ -189,17 +189,31 @@ javascript:(function(){
 		this.pt4 = new RegExp(/(IFC1019|IFC1020|IFC1021)/);
 		this.pt5 = new RegExp(/(@import url)(\("*)(.+?)("*\);)/);
 		this.pt6 = new RegExp(/.+\t.+\t.+/);
+		this.pt7 = new RegExp(/(\[)(.+?)(\])/);
 
 		this.get_this_url = function() {
 			if(this.sv_util.is_detail_page()) {
 				var rows = this.tbl.rows;
 				var rowdata = rows.item(1);
-				return rowdata.cells.item(1).innerText;
+				if(typeof rowdata != "undefined") {
+					var src = rowdata.cells.item(1).innerText;
+					if(this.pt3.test(src)) return src.match(this.pt3)[1];
+				}
+				return null;
 			} else if(this.sv_util.is_survey_page()) {
 				return this.sv_util.get_survey_url();
 			}
 		};
-		this.get_this_tech = function() {
+		this.get_this_page_num = function() {
+				var rows = this.tbl.rows;
+				var rowdata = rows.item(1);
+				if(typeof rowdata != "undefined") {
+					var src = rowdata.cells.item(1).innerText;
+					if(this.pt7.test(src)) return src.match(this.pt7)[2];
+				}
+				else return null;	
+		};
+		this.get_this_guideline = function() {
 				var rows = this.tbl.rows;
 				var rowdata = rows.item(2);
 				if(typeof rowdata != "undefined") return rowdata.cells.item(1).innerText;
@@ -254,9 +268,8 @@ javascript:(function(){
 		};
 		this.browse_page = function() {
 			var url = this.get_this_url();
-			if(this.pt3.test(url)) {
-				var burl = url.match(this.pt3)[1];
-				window.open(burl, "_blank");
+			if(url != null) {
+				window.open(url, "_blank");
 			}else{
 				alert("エラーです。");
 			}
@@ -284,14 +297,18 @@ javascript:(function(){
 		this.browse_pasteboard = function() {
 			var txt = "";
 			var tt = this.get_select_text();
+			tt=tt.replace(/^ +/m,"");
+		    tt=tt.replace(/^\t+/m,"");
 			var tmp = tt.split("\t");
 			if(tmp.length == 0) return false;
-			txt += this.get_this_tech() + "\n";
-			txt += tmp[0] + "\n";
-			txt += tmp[1] + "\n";
-			txt += this.safty_val(tmp[3]) + "\n";
-			txt += this.safty_val(tmp[4]) + "\n";
-			txt += this.safty_val(tmp[5]) + "";
+			txt += this.get_this_page_num() + "\n";
+			txt += this.get_this_url() + "\n";
+			txt += "達成基準: " + this.get_this_guideline() + "\n";
+			txt += "達成方法番号: " + tmp[0] + "\n";
+			txt += "判定: " + tmp[1] + "\n";
+			txt += "判定コメント:\n" + this.safty_val(tmp[3]) + "\n";
+			txt += "対象ソース:\n" + this.safty_val(tmp[4]) + "\n";
+			txt += "修正ソース:\n" + this.safty_val(tmp[5]) + "";
 			alert(txt);
 		};
 		this.safty_val = function(elm) {
