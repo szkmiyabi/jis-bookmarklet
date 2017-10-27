@@ -188,6 +188,7 @@ javascript:(function(){
 		this.pt3 = new RegExp(/(http.*:\/\/.+)/);
 		this.pt4 = new RegExp(/(IFC1019|IFC1020|IFC1021)/);
 		this.pt5 = new RegExp(/(@import url)(\("*)(.+?)("*\);)/);
+		this.pt6 = new RegExp(/.+\t.+\t.+/);
 
 		this.get_this_url = function() {
 			if(this.sv_util.is_detail_page()) {
@@ -197,6 +198,12 @@ javascript:(function(){
 			} else if(this.sv_util.is_survey_page()) {
 				return this.sv_util.get_survey_url();
 			}
+		};
+		this.get_this_tech = function() {
+				var rows = this.tbl.rows;
+				var rowdata = rows.item(2);
+				if(typeof rowdata != "undefined") return rowdata.cells.item(1).innerText;
+				else return null;
 		};
 		this.get_this_home_url = function(url) {
 			var mt = url.match(this.pt1);
@@ -214,12 +221,17 @@ javascript:(function(){
 		};
 		this.is_validate_tech_selected = function() {
 			var tt = this.get_select_text();
-			if(this.pt4.test(tt)) return true;
+			if(this.pt4.test(tt) && !this.pt6.test(tt)) return true;
 			else return false;
 		};
 		this.is_other_css_selected = function() {
 			var tt = this.get_select_text();
 			if(this.pt5.test(tt)) return true;
+			else return false;
+		};
+		this.is_table_row_selected = function() {
+			var tt = this.get_select_text();
+			if(this.pt6.test(tt)) return true;
 			else return false;
 		};
 		this.get_select_text = function() {
@@ -269,12 +281,30 @@ javascript:(function(){
 				alert("エラーです。");
 			}
 		};
+		this.browse_pasteboard = function() {
+			var txt = "";
+			var tt = this.get_select_text();
+			var tmp = tt.split("\t");
+			if(tmp.length == 0) return false;
+			txt += this.get_this_tech() + "\n";
+			txt += tmp[0] + "\n";
+			txt += tmp[1] + "\n";
+			txt += this.safty_val(tmp[3]) + "\n";
+			txt += this.safty_val(tmp[4]) + "\n";
+			txt += this.safty_val(tmp[5]) + "";
+			alert(txt);
+		};
+		this.safty_val = function(elm) {
+			if(typeof elm == "undefined") return "";
+			else return elm;
+		};
 	}
 
 	var util = new repoUtilClass();
 	if(util.is_text_select()) {
 		if(util.is_validate_tech_selected()) util.validate_page();
 		else if(util.is_other_css_selected()) util.import_other_css();
+		else if(util.is_table_row_selected()) util.browse_pasteboard();
 		else util.browse_image();
 	} else {
 		util.browse_page();
